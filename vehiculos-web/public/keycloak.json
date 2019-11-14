@@ -1,0 +1,9 @@
+{
+  "realm": "master",
+  "auth-server-url": "https://servicios.gralsaneamiento.com.ar/auth",
+  "ssl-required": "all",
+  "resource": "vehiculos",
+  "public-client": true,
+  "use-resource-role-mappings": true,
+  "confidential-port": 0
+}

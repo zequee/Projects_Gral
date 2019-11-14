@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "dni": 30485930,
+    "name": "Pepe",
+    "lastName": "Ramirez",
+    "email": "pepe@gmail.com"
+  },
+  {
+    "id": 2,
+    "dni": 33787652,
+    "name": "Juan",
+    "lastName": "Perez",
+    "email": "juan@gmail.com"
+  },
+  {
+    "id": 3,
+    "dni": 29820930,
+    "name": "Esteban",
+    "lastName": "Gutierrez",
+    "email": "esteban@gmail.com"
+  },
+  {
+    "id": 4,
+    "dni": 25098372,
+    "name": "Alberto",
+    "lastName": "Gomez",
+    "email": "albert@gmail.com"
+  },
+  {
+    "id": 5,
+    "dni": 31897352,
+    "name": "Andres",
+    "lastName": "Bateria",
+    "email": "bateria@gmail.com"
+  }
+]

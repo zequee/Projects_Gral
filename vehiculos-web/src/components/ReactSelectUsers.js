@@ -1,0 +1,341 @@
+// import React, { Component } from "react";
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { withStyles } from "@material-ui/core/styles";
+import { handleChangeSingle } from "../store/Actions/assignUser";
+import { requestListStores } from "../store/Actions/stores";
+import { requestListGangs } from "../store/Actions/gangs";
+import { requestListVehicles } from "../store/Actions/vehicles";
+import { requestListAssignments } from "../store/Actions/assignments";
+import clsx from "clsx";
+import Select from "react-select";
+import { emphasize } from "@material-ui/core/styles";
+import Typography from "@material-ui/core/Typography";
+import NoSsr from "@material-ui/core/NoSsr";
+import TextField from "@material-ui/core/TextField";
+import Paper from "@material-ui/core/Paper";
+import Chip from "@material-ui/core/Chip";
+import MenuItem from "@material-ui/core/MenuItem";
+import CancelIcon from "@material-ui/icons/Cancel";
+import { withRouter } from "react-router-dom";
+import PropTypes from "prop-types";
+import { getListGangsForAStore } from "../store/Reducers/gangs";
+
+// const useStyles = makeStyles(theme => ({
+const styles = theme => ({
+  root: {
+    flexGrow: 1,
+    height: 250
+  },
+  input: {
+    display: "flex",
+    padding: 0,
+    height: "auto"
+  },
+  valueContainer: {
+    display: "flex",
+    flexWrap: "wrap",
+    flex: 1,
+    alignItems: "center",
+    overflow: "hidden"
+  },
+  chip: {
+    margin: theme.spacing(0.5, 0.25)
+  },
+  chipFocused: {
+    backgroundColor: emphasize(
+      theme.palette.type === "light"
+        ? theme.palette.grey[300]
+        : theme.palette.grey[700],
+      0.08
+    )
+  },
+  noOptionsMessage: {
+    padding: theme.spacing(1, 2)
+  },
+  singleValue: {
+    fontSize: 16
+  },
+  placeholder: {
+    position: "absolute",
+    left: 2,
+    bottom: 6,
+    fontSize: 16
+  },
+  paper: {
+    position: "absolute",
+    zIndex: 1,
+    marginTop: theme.spacing(1),
+    left: 0,
+    right: 0
+  },
+  divider: {
+    height: theme.spacing(2)
+  }
+});
+
+function NoOptionsMessage(props) {
+  return (
+    <Typography
+      color="textSecondary"
+      className={props.selectProps.classes.noOptionsMessage}
+      {...props.innerProps}
+    >
+      {props.children}
+    </Typography>
+  );
+}
+
+NoOptionsMessage.propTypes = {
+  children: PropTypes.node,
+  innerProps: PropTypes.object,
+  selectProps: PropTypes.object.isRequired
+};
+
+function inputComponent({ inputRef, ...props }) {
+  return <div ref={inputRef} {...props} />;
+}
+
+inputComponent.propTypes = {
+  inputRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object])
+};
+
+function Control(props) {
+  const {
+    children,
+    innerProps,
+    innerRef,
+    selectProps: { classes, TextFieldProps }
+  } = props;
+
+  return (
+    <TextField
+      fullWidth
+      InputProps={{
+        inputComponent,
+        inputProps: {
+          className: classes.input,
+          ref: innerRef,
+          children,
+          ...innerProps
+        }
+      }}
+      {...TextFieldProps}
+    />
+  );
+}
+
+Control.propTypes = {
+  children: PropTypes.node,
+  innerProps: PropTypes.object,
+  innerRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+  selectProps: PropTypes.object.isRequired
+};
+
+function Option(props) {
+  return (
+    <MenuItem
+      ref={props.innerRef}
+      selected={props.isFocused}
+      component="div"
+      style={{
+        fontWeight: props.isSelected ? 500 : 400
+      }}
+      {...props.innerProps}
+    >
+      {props.children}
+    </MenuItem>
+  );
+}
+
+Option.propTypes = {
+  children: PropTypes.node,
+  innerProps: PropTypes.object,
+  innerRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+  isFocused: PropTypes.bool,
+  isSelected: PropTypes.bool
+};
+
+function Placeholder(props) {
+  return (
+    <Typography
+      color="textSecondary"
+      className={props.selectProps.classes.placeholder}
+      {...props.innerProps}
+    >
+      {props.children}
+    </Typography>
+  );
+}
+
+Placeholder.propTypes = {
+  children: PropTypes.node,
+  innerProps: PropTypes.object,
+  selectProps: PropTypes.object.isRequired
+};
+
+function SingleValue(props) {
+  return (
+    <Typography
+      className={props.selectProps.classes.singleValue}
+      {...props.innerProps}
+    >
+      {props.children}
+    </Typography>
+  );
+}
+
+SingleValue.propTypes = {
+  children: PropTypes.node,
+  innerProps: PropTypes.object,
+  selectProps: PropTypes.object.isRequired
+};
+
+function ValueContainer(props) {
+  return (
+    <div className={props.selectProps.classes.valueContainer}>
+      {props.children}
+    </div>
+  );
+}
+
+ValueContainer.propTypes = {
+  children: PropTypes.node,
+  selectProps: PropTypes.object.isRequired
+};
+
+function MultiValue(props) {
+  return (
+    <Chip
+      tabIndex={-1}
+      label={props.children}
+      className={clsx(props.selectProps.classes.chip, {
+        [props.selectProps.classes.chipFocused]: props.isFocused
+      })}
+      onDelete={props.removeProps.onClick}
+      deleteIcon={<CancelIcon {...props.removeProps} />}
+    />
+  );
+}
+
+MultiValue.propTypes = {
+  children: PropTypes.node,
+  isFocused: PropTypes.bool,
+  removeProps: PropTypes.object.isRequired,
+  selectProps: PropTypes.object.isRequired
+};
+
+function Menu(props) {
+  return (
+    <Paper
+      square
+      className={props.selectProps.classes.paper}
+      {...props.innerProps}
+    >
+      {props.children}
+    </Paper>
+  );
+}
+
+Menu.propTypes = {
+  children: PropTypes.node,
+  innerProps: PropTypes.object,
+  selectProps: PropTypes.object
+};
+
+const components = {
+  Control,
+  Menu,
+  MultiValue,
+  NoOptionsMessage,
+  Option,
+  Placeholder,
+  SingleValue,
+  ValueContainer
+};
+
+class ReactSelectUsers extends Component {
+  async componentDidMount() {
+    const storesPromise = this.props.requestListStores();
+    const gangsPromise = this.props.requestListGangs();
+    const vehiclesPromise = this.props.requestListVehicles();
+    const assignmentsPromise = this.props.requestListAssignments();
+    await Promise.all([storesPromise, gangsPromise, vehiclesPromise,assignmentsPromise]);
+
+    this.props.handleChangeSingle({
+      value: this.props.selectedValue ? this.props.selectedValue.id : "",
+      label: this.props.selectedValue
+        ? this.props.selectedValue.name
+        : "Seleccione..."
+    });
+  }
+
+  render() {
+    const { classes } = this.props;
+    // console.log(this.props.selectedValue);
+
+    const selectStyles = {
+      input: base => ({
+        ...base,
+        // color: theme.palette.text.primary,
+        "& input": {
+          font: "inherit"
+        }
+      })
+    };
+
+    return (
+      <div className={classes.root}>
+        <NoSsr>
+          <Select
+            classes={classes}
+            styles={selectStyles}
+            inputId="react-select-single"
+            TextFieldProps={{
+              label: "Responsable",
+              InputLabelProps: {
+                htmlFor: "react-select-single",
+                shrink: true
+              },
+              placeholder: "Seleccione un Responsable"
+            }}
+            options={this.props.gangs.map(gang => ({
+              value: gang._id,
+              label: gang.name
+            }))}
+            components={components}
+            value={this.props.selectedValue}
+            onChange={this.props.handleChangeSingle}
+          />
+          <div className={classes.divider} />
+        </NoSsr>
+      </div>
+    );
+  }
+}
+
+const mapStateToProps = (state, ownProps) => {
+  return {
+    selectedValue: state.assignUser.selectedValue,
+    gangs: getListGangsForAStore(state, ownProps.match.params.id) //selector
+  };
+};
+
+const mapDispatchToProps = dispatch => ({
+  handleChangeSingle: value => dispatch(handleChangeSingle(value)),
+
+  requestListStores: () => dispatch(requestListStores()),
+
+  requestListGangs: value => dispatch(requestListGangs(value)),
+
+  requestListVehicles: value => dispatch(requestListVehicles(value)),
+
+  requestListAssignments: () => dispatch(requestListAssignments()),
+});
+
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(withStyles(styles)(ReactSelectUsers))
+);
